@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f1">
+  <title>ยืม-คืนอุปกรณ์กีฬา | โรงเรียน</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d3029;
+      --muted: #748078;
+      --green: #23734f;
+      --green-dark: #18563a;
+      --green-soft: #e8f3eb;
+      --line: #e9eee8;
+      --paper: #fff;
+      --canvas: #f5f7f1;
+      --orange: #e79548;
+      font-family: "Leelawadee UI", Tahoma, "Noto Sans Thai", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--canvas);
+      color: var(--ink);
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1240px;
+      margin: auto;
+      padding: 22px 28px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      color: var(--green);
+    }
+    .brand-mark svg { display: block; width: 44px; height: 44px; }
+    .brand-name { font-weight: 800; letter-spacing: -.3px; }
+    .brand-caption { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .school-tag {
+      border: 1px solid #dfe8df;
+      border-radius: 999px;
+      padding: 8px 13px;
+      background: white;
+      color: #53665a;
+      font-size: 13px;
+    }
+    .user-bar { display: flex; align-items: center; gap: 10px; }
+    .logout-button {
+      border: 1px solid #dfe8df;
+      border-radius: 9px;
+      padding: 8px 11px;
+      background: white;
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .app-nav { max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+    .app-nav-inner {
+      display: flex;
+      width: fit-content;
+      gap: 6px;
+      padding: 6px;
+      border: 1px solid #e6ece5;
+      border-radius: 13px;
+      background: white;
+      box-shadow: 0 3px 12px rgb(29 48 41 / 3%);
+    }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 15px;
+      background: transparent;
+      color: #647269;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .nav-link:hover { background: #f5f8f4; color: var(--green-dark); }
+    .nav-link.active { background: var(--green); color: white; }
+    .nav-link[hidden] { display: none; }
+    .student-profile-view { padding-top: 20px; }
+    .student-profile-card {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 25px;
+      align-items: center;
+      padding: 28px;
+    }
+    .student-avatar {
+      display: grid;
+      width: 160px;
+      height: 160px;
+      place-items: center;
+      overflow: hidden;
+      border: 5px solid #e8f3eb;
+      border-radius: 50%;
+      background: #f1f7f1;
+      color: var(--green);
+      font-size: 58px;
+    }
+    .student-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .student-profile-info h1 { margin: 0 0 6px; font-size: 28px; }
+    .student-profile-info > p { margin: 0 0 19px; color: var(--muted); font-size: 13px; }
+    .student-profile-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+    }
+    .student-profile-field { padding: 10px 12px; border-radius: 10px; background: #f7f9f6; }
+    .student-profile-field span { display: block; color: var(--muted); font-size: 11px; }
+    .student-profile-field strong { display: block; margin-top: 3px; font-size: 14px; }
+    .student-profile-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
+    .student-profile-actions input[type="file"] { max-width: 250px; font-size: 12px; }
+    .student-profile-actions .field { flex: 1; min-width: 220px; margin: 0; }
+    .student-profile-actions .field input { height: 38px; }
+    .line-settings { margin: 18px 20px 20px; padding: 15px; border-radius: 12px; background: #f7f9f6; }
+    .line-settings h3 { margin: 0; font-size: 14px; }
+    .line-settings p { margin: 6px 0 10px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .line-settings form { display: flex; flex-wrap: wrap; gap: 8px; }
+    .line-settings input { flex: 1; min-width: 220px; height: 38px; padding: 0 10px; border: 1px solid #e2e8e1; border-radius: 8px; }
+    .account-view { padding-top: 20px; }
+    .account-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 164px;
+      padding: 28px 34px;
+      border: 1px solid #e2ece4;
+      border-radius: 20px;
+      background: linear-gradient(110deg, #fff 0%, #f1f8f2 100%);
+    }
+    .account-hero .eyebrow { color: var(--green); }
+    .account-hero h1 { font-size: clamp(26px, 3vw, 34px); }
+    .account-hero p:last-child { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+    .account-hero-icon {
+      display: grid;
+      width: 76px;
+      height: 76px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 24px;
+      background: #e4f1e7;
+      font-size: 37px;
+    }
+    .account-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 17px 0;
+    }
+    .account-stat {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 15px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+    .account-stat-icon {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--green-soft);
+      font-size: 19px;
+    }
+    .account-stat:nth-child(2) .account-stat-icon { background: #eef0ff; }
+    .account-stat:nth-child(3) .account-stat-icon { background: #fff1df; }
+    .account-stat strong { display: block; font-size: 19px; line-height: 1.1; }
+    .account-stat span:last-child { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .account-management-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 16px;
+      align-items: start;
+    }
+    .account-management-panel { overflow: hidden; }
+    .account-management-panel .panel-head { padding-bottom: 15px; }
+    .account-guide { padding: 19px; }
+    .account-guide-icon { font-size: 25px; }
+    .account-guide h2 { margin-top: 8px; font-size: 16px; }
+    .account-guide p { color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .account-guide ul { margin: 10px 0 0; padding-left: 18px; color: #58665d; font-size: 12px; line-height: 1.9; }
+    .account-file-note { margin: 8px 0 0; color: #68776d; font-size: 11px; }
+
+    .auth-screen { max-width: 460px; margin: 34px auto 70px; padding: 0 20px; }
+    .auth-card {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: white;
+      box-shadow: 0 12px 35px rgb(29 48 41 / 5%);
+    }
+    .auth-heading { margin-bottom: 20px; text-align: center; }
+    .auth-heading .brand-mark { width: 62px; height: 62px; margin: 0 auto 10px; }
+    .auth-heading .brand-mark svg { width: 62px; height: 62px; }
+    .auth-heading h1 { font-size: 24px; }
+    .auth-heading p { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+    .auth-tab {
+      border: 1px solid #e2e8e1;
+      border-radius: 9px;
+      padding: 10px;
+      background: white;
+      color: #536158;
+      font-weight: 700;
+    }
+    .auth-tab.active { border-color: var(--green); background: var(--green-soft); color: var(--green-dark); }
+    .auth-form[hidden], .app-content[hidden], [hidden] { display: none !important; }
+    .auth-actions { display: grid; gap: 10px; }
+    .text-button {
+      border: 0;
+      background: transparent;
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .auth-note { margin: 16px 0 0; color: #79857c; font-size: 11px; line-height: 1.6; }
+    .auth-notice { min-height: 18px; margin: 11px 0 0; color: var(--green-dark); font-size: 12px; }
+    .auth-notice.error { color: #b94a3f; }
+
+    main { max-width: 1240px; margin: auto; padding: 14px 28px 56px; }
+    .welcome {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      min-height: 186px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 38px;
+      border-radius: 22px;
+      background: linear-gradient(110deg, #1d6946 0%, #2e8059 65%, #4b9b6b 100%);
+      color: white;
+    }
+    .welcome::after {
+      position: absolute;
+      top: -98px;
+      right: 12%;
+      width: 280px;
+      height: 280px;
+      border: 1px solid rgb(255 255 255 / 13%);
+      border-radius: 50%;
+      box-shadow: 0 0 0 34px rgb(255 255 255 / 5%), 0 0 0 70px rgb(255 255 255 / 4%);
+      content: "";
+    }
+    .welcome-copy { position: relative; z-index: 1; }
+    .eyebrow { margin: 0 0 8px; color: #d7eddd; font-size: 13px; }
+    h1 { margin: 0; font-size: clamp(25px, 3vw, 34px); letter-spacing: -.6px; }
+    .welcome-copy > p:last-child { margin: 9px 0 0; color: #e3f1e7; font-size: 14px; }
+    .welcome-icon { position: relative; z-index: 1; padding-right: 22px; font-size: 76px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 20px 0 31px;
+    }
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+    }
+    .stat-icon {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--green-soft);
+      font-size: 22px;
+    }
+    .stat:nth-child(2) .stat-icon { background: #fff1df; }
+    .stat:nth-child(3) .stat-icon { background: #eef0ff; }
+    .stat-value { font-size: 23px; font-weight: 800; line-height: 1.1; }
+    .stat-label { margin-top: 4px; color: var(--muted); font-size: 12px; }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 15px;
+    }
+    h2 { margin: 0; font-size: 20px; letter-spacing: -.3px; }
+    .section-note { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .search {
+      width: min(250px, 42vw);
+      padding: 10px 13px;
+      border: 1px solid #e1e8e0;
+      border-radius: 10px;
+      outline: none;
+      background: white;
+    }
+    .search:focus, .field input:focus, .field select:focus {
+      border-color: #69a87d;
+      box-shadow: 0 0 0 3px rgb(35 115 79 / 10%);
+    }
+
+    .equipment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px;
+    }
+    .equipment-card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .equipment-card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgb(29 48 41 / 6%); }
+    .equipment-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .equipment-icon {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      border-radius: 15px;
+      background: #f5f7f3;
+      font-size: 29px;
+    }
+    .availability {
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .availability.out { background: #fff0ed; color: #b94a3f; }
+    .equipment-card h3 { margin: 15px 0 3px; font-size: 16px; }
+    .equipment-meta { margin: 0; color: var(--muted); font-size: 12px; }
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 17px;
+      padding-top: 13px;
+      border-top: 1px solid #f0f2ee;
+    }
+    .stock { color: #68766d; font-size: 12px; }
+    .borrow-button, .submit-button {
+      border: 0;
+      border-radius: 9px;
+      padding: 9px 13px;
+      background: var(--green);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .borrow-button:hover, .submit-button:hover { background: var(--green-dark); }
+    .borrow-button:disabled { cursor: not-allowed; background: #b8c2ba; }
+
+    .lower-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, .82fr) minmax(0, 1.65fr);
+      gap: 17px;
+      margin-top: 34px;
+      align-items: start;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+    }
+    .panel-head { padding: 19px 20px 0; }
+    .panel-body { padding: 17px 20px 20px; }
+    .form-intro { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .field { display: block; margin-top: 14px; }
+    .field > span { display: block; margin-bottom: 6px; color: #536158; font-size: 12px; font-weight: 700; }
+    .field input, .field select {
+      width: 100%;
+      height: 42px;
+      padding: 0 11px;
+      border: 1px solid #e2e8e1;
+      border-radius: 9px;
+      outline: none;
+      background: white;
+      color: var(--ink);
+      font-size: 13px;
+    }
+    .submit-button { width: 100%; margin-top: 17px; padding: 11px; font-size: 13px; }
+    .notice { min-height: 18px; margin: 10px 0 0; color: var(--green-dark); font-size: 12px; }
+    .notice.error { color: #b94a3f; }
+
+    .loan-list { padding: 12px 20px 19px; }
+    .loan-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid #eff2ee;
+    }
+    .loan-row:last-child { border-bottom: 0; }
+    .loan-name { font-size: 13px; font-weight: 700; }
+    .loan-detail { margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .return-button {
+      border: 1px solid #d9e8dc;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: white;
+      color: var(--green-dark);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .return-button:hover { background: var(--green-soft); }
+    .account-list { padding: 8px 20px 19px; }
+    .account-item { padding: 14px 0; border-bottom: 1px solid #eff2ee; }
+    .account-item:last-child { border-bottom: 0; }
+    .account-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .account-name { font-size: 13px; font-weight: 700; }
+    .account-detail { margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .account-role-edit { display: flex; align-items: center; gap: 6px; }
+    .account-role-edit select, .account-reset-form input {
+      min-width: 100px;
+      height: 36px;
+      padding: 0 8px;
+      border: 1px solid #e2e8e1;
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      font-size: 12px;
+    }
+    .account-reset-form { display: flex; gap: 8px; margin-top: 10px; }
+    .account-reset-form input { flex: 1; min-width: 0; }
+    .account-reset-form .return-button, .account-role-edit .return-button { font-size: 11px; }
+    .delete-account-button {
+      border: 1px solid #f1d8d4;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff5f3;
+      color: #b94a3f;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .delete-account-button:hover { border-color: #e7b9b2; background: #ffebe8; }
+    .account-notice { min-height: 18px; margin: 0; color: var(--green-dark); font-size: 12px; }
+    .account-notice.error { color: #b94a3f; }
+    .empty { padding: 28px 10px; color: var(--muted); text-align: center; font-size: 13px; }
+    .footer { margin-top: 28px; color: #879188; text-align: center; font-size: 11px; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      clip-path: inset(50%);
+    }
+
+    @media (max-width: 860px) {
+      .equipment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lower-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .topbar { padding: 16px 18px; }
+      .app-nav { padding: 0 18px; }
+      .nav-link { padding: 9px 11px; font-size: 12px; }
+      main { padding: 8px 18px 38px; }
+      .school-tag { font-size: 11px; }
+      .welcome { min-height: 160px; padding: 25px 22px; }
+      .welcome-icon { padding-right: 0; font-size: 54px; }
+      .stats { grid-template-columns: 1fr; gap: 9px; margin: 14px 0 27px; }
+      .stat { padding: 12px 15px; }
+      .stat-icon { width: 40px; height: 40px; font-size: 19px; }
+      .stat-value { font-size: 19px; }
+      .section-heading { align-items: flex-start; flex-direction: column; }
+      .search { width: 100%; }
+      .equipment-grid { grid-template-columns: 1fr; gap: 10px; }
+      .account-heading { flex-direction: column; }
+      .account-role-edit { width: 100%; }
+      .account-role-edit select { flex: 1; }
+      .account-hero { min-height: 140px; padding: 22px 18px; }
+      .account-hero-icon { width: 56px; height: 56px; border-radius: 18px; font-size: 28px; }
+      .account-stats { gap: 8px; }
+      .account-stat { align-items: flex-start; flex-direction: column; gap: 8px; padding: 12px; }
+      .account-stat-icon { width: 34px; height: 34px; font-size: 16px; }
+      .account-stat strong { font-size: 17px; }
+      .account-management-grid { grid-template-columns: 1fr; }
+      .student-profile-card { grid-template-columns: 1fr; justify-items: center; padding: 21px; }
+      .student-avatar { width: 128px; height: 128px; }
+      .student-profile-info { width: 100%; }
+      .student-profile-info h1 { text-align: center; }
+      .student-profile-info > p { text-align: center; }
+      .student-profile-fields { grid-template-columns: 1fr 1fr; }
+      .student-profile-actions { justify-content: center; }
+      .line-settings { margin: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img" aria-label="ตราโรงเรียน">
+          <path d="M24 3 42 10v13c0 11-7.5 18.5-18 22C13.5 41.5 6 34 6 23V10L24 3Z" fill="#e8f3eb" stroke="#23734f" stroke-width="2.5"/>
+          <path d="M14 19h20v13H14z" rx="2" fill="#23734f"/>
+          <path d="M11 18 24 11l13 7H11Z" fill="#18563a"/>
+          <path d="M21 25h6v7h-6zM17 22h3v3h-3zm11 0h3v3h-3z" fill="#fff"/>
+          <path d="M19 36h10" stroke="#e79548" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">สนามกีฬาโรงเรียน</div>
+        <div class="brand-caption">ระบบยืม-คืนอุปกรณ์กีฬา</div>
+      </div>
+    </div>
+    <div class="user-bar">
+      <div class="school-tag" id="session-label">🏫 สำหรับนักเรียนและคุณครู</div>
+      <button class="logout-button" id="logout-button" type="button" hidden>ออกจากระบบ</button>
+    </div>
+  </header>
+  <nav class="app-nav" id="app-nav" aria-label="เมนูหลัก" hidden>
+    <div class="app-nav-inner">
+      <button class="nav-link" type="button" data-view="student-profile" data-role-only="student">🏠 ข้อมูลนักเรียน</button>
+      <button class="nav-link" type="button" data-view="borrow" data-role-only="student">🏀 ยืมของ</button>
+      <button class="nav-link active" type="button" data-view="dashboard" data-role-only="teacher" aria-current="page">🏠 หน้าหลัก</button>
+      <button class="nav-link" type="button" data-view="accounts" data-role-only="teacher">👥 จัดการบัญชี</button>
+    </div>
+  </nav>
+
+  <section class="auth-screen" id="login-screen">
+    <div class="auth-card">
+      <div class="auth-heading">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M24 3 42 10v13c0 11-7.5 18.5-18 22C13.5 41.5 6 34 6 23V10L24 3Z" fill="#e8f3eb" stroke="#23734f" stroke-width="2.5"/><path d="M14 19h20v13H14z" fill="#23734f"/><path d="m11 18 13-7 13 7H11Z" fill="#18563a"/><path d="M21 25h6v7h-6zM17 22h3v3h-3zm11 0h3v3h-3z" fill="#fff"/><path d="M19 36h10" stroke="#e79548" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </div>
+        <h1>เข้าสู่ระบบยืม-คืน</h1>
+        <p>เลือกประเภทบัญชีเพื่อเข้าสู่ระบบ</p>
+      </div>
+      <div class="auth-tabs" role="tablist" aria-label="ประเภทบัญชี">
+        <button class="auth-tab active" type="button" data-role="student" role="tab" aria-selected="true">🎒 นักเรียน</button>
+        <button class="auth-tab" type="button" data-role="teacher" role="tab" aria-selected="false">👩‍🏫 คุณครู</button>
+      </div>
+      <form class="auth-form" id="login-form">
+        <label class="field"><span>อีเมล</span><input id="login-email" name="email" type="email" autocomplete="email" required maxlength="254"></label>
+        <label class="field"><span>รหัสผ่าน</span><input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100"></label>
+        <button class="submit-button" type="submit">เข้าสู่ระบบ</button>
+      </form>
+      <form class="auth-form" id="signup-form" hidden>
+        <label class="field signup-student"><span>ชื่อ-นามสกุล</span><input name="name" maxlength="60" autocomplete="name"></label>
+        <label class="field signup-student"><span>ชั้น / ห้อง</span><input name="classroom" maxlength="20" placeholder="เช่น ม.2/1"></label>
+        <label class="field signup-student"><span>เลขประจำตัวนักเรียน</span><input name="studentNumber" maxlength="30" required></label>
+        <label class="field signup-student"><span>อีเมล</span><input name="email" type="email" maxlength="254" autocomplete="email" required></label>
+        <label class="field signup-student"><span>ตั้งรหัสผ่าน (อย่างน้อย 8 ตัวอักษร)</span><input name="password" type="password" minlength="8" maxlength="100" autocomplete="new-password" required></label>
+        <button class="submit-button" type="submit" id="signup-submit">สร้างบัญชีนักเรียน</button>
+      </form>
+      <div class="auth-actions">
+        <button class="text-button" type="button" id="show-signup">ยังไม่มีบัญชี? สมัครนักเรียน</button>
+        <button class="text-button" type="button" id="show-login" hidden>กลับไปเข้าสู่ระบบ</button>
+      </div>
+      <p class="auth-note" id="teacher-config-help" hidden>เข้าสู่ระบบในฐานะ <strong>คุณครู</strong></p>
+      <p class="auth-notice" id="auth-notice" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <div class="app-content" id="app-content" hidden>
+  <main class="student-profile-view" id="student-profile-view" hidden>
+    <section class="panel student-profile-card" aria-labelledby="student-profile-title">
+      <div class="student-avatar" id="student-avatar" aria-label="รูปนักเรียน">🎒</div>
+      <div class="student-profile-info">
+        <p class="eyebrow">STUDENT PROFILE · ข้อมูลนักเรียน</p>
+        <h1 id="student-profile-title">ข้อมูลนักเรียน</h1>
+        <p>ข้อมูลส่วนตัวที่ใช้ในระบบยืม-คืนอุปกรณ์กีฬา</p>
+        <div class="student-profile-fields">
+          <div class="student-profile-field"><span>ชื่อ-นามสกุล</span><strong id="student-profile-name">-</strong></div>
+          <div class="student-profile-field"><span>เลขประจำตัวนักเรียน</span><strong id="student-profile-number">-</strong></div>
+          <div class="student-profile-field"><span>ชั้น / ห้อง</span><strong id="student-profile-classroom">-</strong></div>
+          <div class="student-profile-field"><span>อีเมล</span><strong id="student-profile-email">-</strong></div>
+        </div>
+        <div class="student-profile-actions">
+          <label class="sr-only" for="student-photo-input">เลือกรูปนักเรียน</label>
+          <input id="student-photo-input" type="file" accept="image/png,image/jpeg,image/webp">
+          <button class="return-button" id="upload-student-photo" type="button">บันทึกรูป</button>
+        </div>
+        <form class="student-profile-actions" id="student-number-form">
+          <label class="field" for="student-number-input">
+            <span>เลขประจำตัวนักเรียน</span>
+            <input id="student-number-input" name="studentNumber" maxlength="30" required>
+          </label>
+          <button class="return-button" type="submit">บันทึกเลขประจำตัว</button>
+        </form>
+        <p class="notice" id="profile-notice" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+  <main id="dashboard-view">
+    <section class="welcome" aria-labelledby="page-title">
+      <div class="welcome-copy">
+        <p class="eyebrow">SPORTS EQUIPMENT • ยืมง่าย คืนสะดวก</p>
+        <h1 id="page-title">พร้อมลงสนามหรือยัง?</h1>
+        <p>เลือกอุปกรณ์ที่ต้องการ แล้วกรอกข้อมูลเพื่อยืมได้เลย</p>
+      </div>
+      <div class="welcome-icon" aria-hidden="true">🏀</div>
+    </section>
+
+    <section class="stats" aria-label="สรุปอุปกรณ์">
+      <div class="stat">
+        <div class="stat-icon" aria-hidden="true">⚽</div>
+        <div><div class="stat-value" id="available-count">0</div><div class="stat-label">ชิ้นพร้อมให้ยืม</div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon" aria-hidden="true">📋</div>
+        <div><div class="stat-value" id="active-count">0</div><div class="stat-label">รายการที่กำลังถูกยืม</div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon" aria-hidden="true">🏐</div>
+        <div><div class="stat-value" id="equipment-count">0</div><div class="stat-label">ประเภทอุปกรณ์กีฬา</div></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="equipment-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="equipment-title">อุปกรณ์กีฬา</h2>
+          <p class="section-note" id="equipment-instruction">เลือกอุปกรณ์ที่ต้องการยืม • ยืมได้ครั้งละ 1 ชิ้น</p>
+        </div>
+        <label class="sr-only" for="search">ค้นหาอุปกรณ์</label>
+        <input class="search" id="search" type="search" placeholder="🔎  ค้นหาอุปกรณ์..." autocomplete="off">
+      </div>
+      <div class="equipment-grid" id="equipment-grid"></div>
+      <p class="notice" id="dashboard-notice" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="lower-grid" aria-label="แบบฟอร์มและรายการยืม">
+      <form class="panel" id="borrow-form">
+        <div class="panel-head">
+          <h2>📝 กรอกข้อมูลยืม</h2>
+          <p class="form-intro">กรอกข้อมูลให้ครบก่อนกดยืนยัน</p>
+        </div>
+        <div class="panel-body">
+          <label class="field">
+            <span>ชื่อ-นามสกุล</span>
+            <input id="borrower" name="borrower" type="text" maxlength="60" placeholder="เช่น เด็กชายต้นกล้า ใจดี" required>
+          </label>
+          <label class="field">
+            <span>ชั้น / ห้อง</span>
+            <input id="classroom" name="classroom" type="text" maxlength="20" placeholder="เช่น ม.2/1" required>
+          </label>
+          <label class="field">
+            <span>อุปกรณ์ที่ต้องการ</span>
+            <select id="equipment-select" name="equipment" required></select>
+          </label>
+          <label class="field">
+            <span>กำหนดคืน</span>
+            <input id="due-date" name="dueDate" type="date" required>
+          </label>
+          <button class="submit-button" type="submit">ยืนยันการยืม →</button>
+          <p class="notice" id="form-notice" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+      <section class="panel" id="teacher-note" hidden>
+        <div class="panel-head"><h2>👩‍🏫 บัญชีคุณครู</h2></div>
+        <div class="panel-body">
+          <p class="form-intro">คุณครูสามารถตรวจสอบรายการยืม และกดยืนยันคืนเมื่อได้รับอุปกรณ์จากนักเรียนแล้ว </p>
+        </div>
+      </section>
+      <section class="panel" aria-labelledby="loans-title">
+        <div class="panel-head">
+          <h2 id="loans-title">📚 รายการที่กำลังยืม</h2>
+          <p class="form-intro">นักเรียนแจ้งขอคืนได้ และคุณครูเป็นผู้ตรวจรับก่อนยืนยันคืนจริง</p>
+        </div>
+        <div class="loan-list" id="loan-list"></div>
+      </section>
+    </section>
+    <footer class="footer">กรุณาดูแลอุปกรณ์กีฬา และส่งคืนตามกำหนดนะครับ 💚</footer>
+  </main>
+  <main class="account-view" id="account-view" hidden>
+    <section class="account-hero" aria-labelledby="accounts-title">
+      <div>
+        <p class="eyebrow">STAFF WORKSPACE · พื้นที่สำหรับคุณครู</p>
+        <h1 id="accounts-title">จัดการบัญชี</h1>
+        <p>ดูแลบัญชีนักเรียนและคุณครู เปลี่ยนบทบาท หรือตั้งรหัสผ่านใหม่ได้ที่นี่</p>
+      </div>
+      <div class="account-hero-icon" aria-hidden="true">👥</div>
+    </section>
+    <section class="account-stats" aria-label="สรุปบัญชี">
+      <div class="account-stat">
+        <span class="account-stat-icon" aria-hidden="true">👥</span>
+        <div><strong id="account-total">0</strong><span>บัญชีทั้งหมด</span></div>
+      </div>
+      <div class="account-stat">
+        <span class="account-stat-icon" aria-hidden="true">👩‍🏫</span>
+        <div><strong id="teacher-total">0</strong><span>บัญชีคุณครู</span></div>
+      </div>
+      <div class="account-stat">
+        <span class="account-stat-icon" aria-hidden="true">🎒</span>
+        <div><strong id="student-total">0</strong><span>บัญชีนักเรียน</span></div>
+      </div>
+    </section>
+    <div class="account-management-grid">
+      <section class="panel account-management-panel" aria-labelledby="account-list-title">
+        <div class="panel-head">
+          <h2 id="account-list-title">รายชื่อบัญชี</h2>
+          <p class="form-intro">ระบบไม่แสดงรหัสผ่านเดิม หากลืมให้ตั้งรหัสใหม่</p>
+        </div>
+        <p class="account-notice" id="account-notice" role="status" aria-live="polite"></p>
+        <div class="account-list" id="account-list"></div>
+        <div class="line-settings">
+          <h3>🔔 แจ้งเตือนผ่าน LINE</h3>
+          <p>ใส่ LINE User ID ของครูที่ต้องการรับแจ้งเตือนการยืมและคำขอคืน (ต้องเพิ่ม/ติดตาม LINE Official Account ของโรงเรียนก่อน) ระบบจะเก็บ ID ของบัญชีครูที่ล็อกอินอยู่</p>
+          <form id="line-id-form">
+            <label class="sr-only" for="line-user-id">LINE User ID</label>
+            <input id="line-user-id" name="lineUserId" maxlength="33" placeholder="LINE User ID (เช่น U...)" autocomplete="off">
+            <button class="return-button" type="submit">บันทึก LINE ID</button>
+          </form>
+        </div>
+      </section>
+      <aside class="panel account-guide">
+        <div class="account-guide-icon" aria-hidden="true">🔐</div>
+        <h2>จัดการอย่างปลอดภัย</h2>
+        <p>เลือกบทบาทแล้วกดบันทึก หรือกรอกรหัสใหม่ในบัญชีที่ต้องการ</p>
+        <ul>
+          <li>เปลี่ยนบทบาทได้ทั้งนักเรียนและคุณครู</li>
+          <li>ต้องมีบัญชีคุณครูอย่างน้อย 1 บัญชี</li>
+          <li>รหัสผ่านเดิมจะไม่ถูกเปิดเผย</li>
+          <li>บัญชีและสิทธิ์ตรวจสอบจาก โรงเรียน</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
